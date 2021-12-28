@@ -480,10 +480,12 @@ class Player extends Component {
     // before a user can receive them so we can update isFullscreen appropriately.
     // make sure that we listen to fullscreenchange events before everything else to make sure that
     // our isFullscreen method is updated properly for internal components as well as external.
-    if (this.fsApi_.requestFullscreen) {
-      Events.on(document, this.fsApi_.fullscreenchange, this.boundDocumentFullscreenChange_);
-      this.on(this.fsApi_.fullscreenchange, this.boundDocumentFullscreenChange_);
-    }
+
+    // This breaks new code
+    // if (this.fsApi_.requestFullscreen) {
+    //   Events.on(document, this.fsApi_.fullscreenchange, this.boundDocumentFullscreenChange_);
+    //   this.on(this.fsApi_.fullscreenchange, this.boundDocumentFullscreenChange_);
+    // }
 
     if (this.fluid_) {
       this.on(['playerreset', 'resize'], this.boundUpdateStyleEl_);
@@ -2797,7 +2799,8 @@ class Player extends Component {
         this.trigger('fullscreenchange');
       }
 
-      this.toggleFullscreenClass_();
+      // Disabled by Nagi. Breaks view.
+      // this.toggleFullscreenClass_();
       return;
     }
     return this.isFullscreen_;
@@ -2871,22 +2874,14 @@ class Player extends Component {
     // 2. otherwise, if the tech supports fullscreen, call `enterFullScreen` on it.
     //   This is particularly used for iPhone, older iPads, and non-safari browser on iOS.
     // 3. otherwise, use "fullWindow" mode
-    if (this.fsApi_.requestFullscreen) {
-      const promise = this.el_[this.fsApi_.requestFullscreen](fsOptions);
+    if (document.body.requestFullscreen) {
+      const promise = document.body.requestFullscreen(fsOptions);
 
       if (promise) {
         promise.then(() => this.isFullscreen(true), () => this.isFullscreen(false));
       }
 
       return promise;
-    } else if (this.tech_.supportsFullScreen() && !this.options_.preferFullWindow === true) {
-      // we can't take the video.js controls fullscreen but we can go fullscreen
-      // with native controls
-      this.techCall_('enterFullScreen');
-    } else {
-      // fullscreen isn't supported so we'll just stretch the video element to
-      // fill the viewport
-      this.enterFullWindow();
     }
   }
 
@@ -2932,20 +2927,14 @@ class Player extends Component {
   }
 
   exitFullscreenHelper_() {
-    if (this.fsApi_.requestFullscreen) {
-      const promise = document[this.fsApi_.exitFullscreen]();
+    if (document.body.requestFullscreen) {
+      const promise = document.exitFullscreen();
 
       if (promise) {
         // we're splitting the promise here, so, we want to catch the
         // potential error so that this chain doesn't have unhandled errors
         silencePromise(promise.then(() => this.isFullscreen(false)));
       }
-
-      return promise;
-    } else if (this.tech_.supportsFullScreen() && !this.options_.preferFullWindow === true) {
-      this.techCall_('exitFullScreen');
-    } else {
-      this.exitFullWindow();
     }
   }
 
