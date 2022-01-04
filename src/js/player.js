@@ -2097,7 +2097,8 @@ class Player extends Component {
     }
 
     const el = this.el();
-    let isFs = document[this.fsApi_.fullscreenElement] === el;
+    // TODO: Use this.fullscreenElement_ which defaults to this.el_ when option not set
+    let isFs = document[this.fsApi_.fullscreenElement] === el || document[this.fsApi_.fullscreenElement] === this.options_.fullscreenElement;
 
     if (!isFs && el.matches) {
       isFs = el.matches(':' + this.fsApi_.fullscreen);
@@ -2890,7 +2891,7 @@ class Player extends Component {
     //   This is particularly used for iPhone, older iPads, and non-safari browser on iOS.
     // 3. otherwise, use "fullWindow" mode
     if (this.fsApi_.requestFullscreen) {
-      const promise = this.el_[this.fsApi_.requestFullscreen](fsOptions);
+      const promise = (this.options_.fullscreenElement || this.el_)[this.fsApi_.requestFullscreen](fsOptions);
 
       if (promise) {
         promise.then(() => this.isFullscreen(true), () => this.isFullscreen(false));
