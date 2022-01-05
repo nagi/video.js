@@ -2995,6 +2995,8 @@ class Player extends Component {
      * @type {EventTarget~Event}
      */
     this.trigger('enterFullWindow');
+
+    window.parent.postMessage('messageForParent:enterFullWindow', '*');
   }
 
   /**
@@ -3039,6 +3041,8 @@ class Player extends Component {
      * @type {EventTarget~Event}
      */
     this.trigger('exitFullWindow');
+
+    window.parent.postMessage('messageForParent:exitFullWindow', '*');
   }
 
   /**
